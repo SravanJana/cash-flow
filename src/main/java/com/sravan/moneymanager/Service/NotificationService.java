@@ -30,26 +30,23 @@ public class NotificationService {
         log.info(">>>Sending daily income and expense notification");
         List<ProfileEntity> profiles = profileRepo.findAll();
         profiles.forEach(profile -> {
-            String body = "Hi " + profile.getFullName() + ",<br/><br/>"
-                    + "This is a friendly reminder to add your income and expenses for today in money manager.<br/><br/>"
-                    + "<a href='" + frontendUrl + "' style='display:inline-block; background-color:#007bff; color:white; padding:10px; border-radius:5px; text-decoration:none;'>Go to Money Manager</a><br/><br/>"
-                    + "Thanks,<br/>Money Manager Team";
+            String body = "Hi " + profile.getFullName() + ",<br/><br/>" + "This is a friendly reminder to add your income and expenses for today in money manager.<br/><br/>" + "<a href='" + frontendUrl + "' style='display:inline-block; background-color:#007bff; color:white; padding:10px; border-radius:5px; text-decoration:none;'>Go to Money Manager</a><br/><br/>" + "Thanks,<br/>Money Manager Team";
             emailService.sendEmail(profile.getEmail(), "Daily reminder : Add you income and expenses", body);
 
 
         });
     }
 
-//    @Scheduled(cron = "1 01 23 * * * ",zone = "Asia/Kolkata" )
-    @Scheduled(cron = "0 * * * * *",zone = "Asia/Kolkata" )
-    public void sendDailyExpenseSummaryNotification(){
+    //    @Scheduled(cron = "1 01 23 * * * ",zone = "Asia/Kolkata" )
+    @Scheduled(cron = "0 * * * * *", zone = "Asia/Kolkata")
+    public void sendDailyExpenseSummaryNotification() {
         log.info(">>>Sending daily expense summary notification");
         List<ProfileEntity> profiles = profileRepo.findAll();
         profiles.forEach(profile -> {
             List<ExpenseDTO> expensesForUserOnDate = expenseService.getExpensesForUserOnDate(profile.getId(),
                                                                                              LocalDate.now(ZoneId.of(
                                                                                                      "Asia/Kolkata")));
-            if(!expensesForUserOnDate.isEmpty()){
+            if (!expensesForUserOnDate.isEmpty()) {
                 BigDecimal total = expensesForUserOnDate.stream()
                                                         .map(expenseDTO -> expenseDTO.getAmount())
                                                         .reduce(BigDecimal.ZERO, BigDecimal::add);
@@ -93,6 +90,9 @@ public class NotificationService {
                            .append("Thanks,<br/>Money Manager Team");
 
                 emailService.sendEmail(profile.getEmail(), "Daily Expense Summary", htmlContent.toString());
+            } else {
+                emailService.sendEmail(profile.getEmail(), "Daily Expense Summary",
+                                       "Hi " + profile.getFullName() + ",<br/><br/>" + "No expenses found for today.<br/><br/>" + "Thanks,<br/>Money Manager Team");
             }
         });
     }
