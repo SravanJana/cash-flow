@@ -25,7 +25,7 @@ public class NotificationService {
     private String frontendUrl;
 
 
-    @Scheduled(cron = "1 01 22 * * * ",zone = "Asia/Kolkata")
+    @Scheduled(cron = "1 01 22 * * * ", zone = "Asia/Kolkata")
     public void sendDailyIncomeExpenseNotification() {
         log.info(">>>Sending daily income and expense notification");
         List<ProfileEntity> profiles = profileRepo.findAll();
@@ -37,8 +37,8 @@ public class NotificationService {
         });
     }
 
-    //    @Scheduled(cron = "1 01 23 * * * ",zone = "Asia/Kolkata" )
-    @Scheduled(cron = "0 * * * * *", zone = "Asia/Kolkata")
+    @Scheduled(cron = "1 01 23 * * * ", zone = "Asia/Kolkata")
+//    @Scheduled(cron = "0 * * * * *", zone = "Asia/Kolkata")
     public void sendDailyExpenseSummaryNotification() {
         log.info(">>>Sending daily expense summary notification");
         List<ProfileEntity> profiles = profileRepo.findAll();
@@ -91,8 +91,17 @@ public class NotificationService {
 
                 emailService.sendEmail(profile.getEmail(), "Daily Expense Summary", htmlContent.toString());
             } else {
-                emailService.sendEmail(profile.getEmail(), "Daily Expense Summary",
-                                       "Hi " + profile.getFullName() + ",<br/><br/>" + "No expenses found for today.<br/><br/>" + "Thanks,<br/>Money Manager Team");
+                emailService.sendEmail(
+                        profile.getEmail(),
+                        "Daily Expense Summary",
+                        "Hi " + profile.getFullName() + ",<br/><br/>" +
+                                "No expenses were recorded for today.<br/>" +
+                                "Please add your daily expenses to keep your records up to date.<br/><br/>" +
+                                "<a href='" + frontendUrl + "'" +
+                                "style='display:inline-block;padding:10px 20px;background-color:#4CAF50;color:white;" +
+                                "text-decoration:none;border-radius:5px;'>Go to Money Manager</a><br/><br/>" +
+                                "Thanks,<br/>Money Manager Team"
+                );
             }
         });
     }
