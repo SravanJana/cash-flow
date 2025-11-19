@@ -36,4 +36,7 @@ public interface ExpenseRepo extends JpaRepository<ExpenseEntity, Long> {
     @EntityGraph(attributePaths = {"category"})
     List<ExpenseEntity> findByProfileIdAndDate(Long profile_id, LocalDate date);
 
+    // select * from expenses where profile_id = ? and date between ? and ? order by date desc limit 5
+    List<ExpenseEntity> findTop5ByProfileIdAndDateBetweenOrderByDateDesc(Long profileId, LocalDate startDate, LocalDate endDate);
+
 }
