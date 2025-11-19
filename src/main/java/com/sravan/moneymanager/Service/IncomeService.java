@@ -73,17 +73,21 @@ public class IncomeService {
 
     public List<IncomeDTO> getLatest5IncomesForCurrentUser(){
         ProfileEntity currentProfile = profileService.getCurrentProfile();
-        List<IncomeEntity> list = incomeRepo.findTop5ByProfileIdOrderByDateDesc(currentProfile.getId());
+        LocalDate startDate = LocalDate.now().withDayOfMonth(1);
+        LocalDate endDate = LocalDate.now().withDayOfMonth(LocalDate.now().lengthOfMonth());
+        List<IncomeEntity> list = incomeRepo.findTop5ByProfileIdAndDateBetweenOrderByDateDesc(currentProfile.getId(), startDate, endDate);
         return list.stream()
                    .map(entity -> toDTO(entity))
                    .toList();
     }
 
 
-    public BigDecimal getTotalExpenditureForCurrentUser(){
+    public BigDecimal getTotalIncomeForCurrentMonthForCurrentUser(){
         ProfileEntity currentProfile = profileService.getCurrentProfile();
-        BigDecimal totalExpenseByProfileId = incomeRepo.findTotalExpenseByProfileId(currentProfile.getId());
-        return totalExpenseByProfileId != null ? totalExpenseByProfileId : BigDecimal.ZERO;
+        LocalDate startDate = LocalDate.now().withDayOfMonth(1);
+        LocalDate endDate = LocalDate.now().withDayOfMonth(LocalDate.now().lengthOfMonth());
+        BigDecimal totalIncomeByProfileId = incomeRepo.findTotalIncomeByProfileIdAndDateBetween(currentProfile.getId(), startDate, endDate);
+        return totalIncomeByProfileId != null ? totalIncomeByProfileId : BigDecimal.ZERO;
     }
 
 

@@ -20,8 +20,13 @@ public interface ExpenseRepo extends JpaRepository<ExpenseEntity, Long> {
     // select * from expenses where profile_id = ? order by date desc limit 5
     List<ExpenseEntity> findTop5ByProfileIdOrderByDateDesc(Long profileId);
 
+    List<ExpenseEntity> findTop5ByProfileIdAndDateBetweenOrderByDateDesc(Long profileId, LocalDate startDate, LocalDate endDate);
+
     @Query("select sum(e.amount) from ExpenseEntity e where e.profile.id = :profileId")
     BigDecimal findTotalExpenseByProfileId(@Param("profileId") Long profileId);
+
+    @Query("select sum(e.amount) from ExpenseEntity e where e.profile.id = :profileId and e.date between :startDate and :endDate")
+    BigDecimal findTotalExpenseByProfileIdAndDateBetween(@Param("profileId") Long profileId, @Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
 
     //  select * from expenses where profile_id = ? and date between ? and ? and name like %?% order by date desc
     List<ExpenseEntity> findByProfileIdAndDateBetweenAndNameContainingIgnoreCase(Long profileId,

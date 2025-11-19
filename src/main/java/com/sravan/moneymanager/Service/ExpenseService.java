@@ -72,15 +72,19 @@ public class ExpenseService {
 
     public List<ExpenseDTO> getLatest5ExpensesForCurrentUser(){
         ProfileEntity currentProfile = profileService.getCurrentProfile();
-        List<ExpenseEntity> list = expenseRepo.findTop5ByProfileIdOrderByDateDesc(currentProfile.getId());
+        LocalDate startDate = LocalDate.now().withDayOfMonth(1);
+        LocalDate endDate = LocalDate.now().withDayOfMonth(LocalDate.now().lengthOfMonth());
+        List<ExpenseEntity> list = expenseRepo.findTop5ByProfileIdAndDateBetweenOrderByDateDesc(currentProfile.getId(), startDate, endDate);
         return list.stream()
                    .map(entity -> toDTO(entity))
                    .toList();
     }
 
-    public BigDecimal getTotalExpenditureForCurrentUser(){
+    public BigDecimal getTotalExpenditureForCurrentMonthForCurrentUser(){
         ProfileEntity currentProfile = profileService.getCurrentProfile();
-        BigDecimal totalExpenseByProfileId = expenseRepo.findTotalExpenseByProfileId(currentProfile.getId());
+        LocalDate startDate = LocalDate.now().withDayOfMonth(1);
+        LocalDate endDate = LocalDate.now().withDayOfMonth(LocalDate.now().lengthOfMonth());
+        BigDecimal totalExpenseByProfileId = expenseRepo.findTotalExpenseByProfileIdAndDateBetween(currentProfile.getId(), startDate, endDate);
         return totalExpenseByProfileId != null ? totalExpenseByProfileId : BigDecimal.ZERO;
     }
 

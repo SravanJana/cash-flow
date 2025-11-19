@@ -71,9 +71,9 @@ public class DashboardService {
                                                    .collect(Collectors.toList());
 
 
-        dashboardData.put("totalBalance",incomeService.getTotalExpenditureForCurrentUser().subtract(expenseService.getTotalExpenditureForCurrentUser()));
-        dashboardData.put("totalIncome",incomeService.getTotalExpenditureForCurrentUser());
-        dashboardData.put("totalExpense",expenseService.getTotalExpenditureForCurrentUser());
+        dashboardData.put("totalBalance",incomeService.getTotalIncomeForCurrentMonthForCurrentUser().subtract(expenseService.getTotalExpenditureForCurrentMonthForCurrentUser()));
+        dashboardData.put("totalIncome",incomeService.getTotalIncomeForCurrentMonthForCurrentUser());
+        dashboardData.put("totalExpense",expenseService.getTotalExpenditureForCurrentMonthForCurrentUser());
         dashboardData.put("recent5Incomes",latest5IncomesForCurrentUser);
         dashboardData.put("recent5Expenses",latest5ExpensesForCurrentUser);
         dashboardData.put("recentTransactions",recentTransactionDTOList);
