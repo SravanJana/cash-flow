@@ -25,8 +25,8 @@ public class NotificationService {
     @Value("${moneyManger.frontend.url}")
     private String frontendUrl;
 
-//    @Scheduled(cron = "1 01 22 * * * ", zone = "Asia/Kolkata")
-    @Scheduled(cron = "0 * * * * * ", zone = "Asia/Kolkata")
+    @Scheduled(cron = "1 01 22 * * * ", zone = "Asia/Kolkata")
+//    @Scheduled(cron = "0 * * * * * ", zone = "Asia/Kolkata")
     public void sendDailyIncomeExpenseNotification() {
         log.info(">>>Sending daily income and expense notification");
         List<ProfileEntity> profiles = profileRepo.findAll();
@@ -72,8 +72,8 @@ public class NotificationService {
         });
     }
 
-//    @Scheduled(cron = "1 01 23 * * * ", zone = "Asia/Kolkata")
-    @Scheduled(cron = "0 * * * * *", zone = "Asia/Kolkata")
+    @Scheduled(cron = "1 01 23 * * * ", zone = "Asia/Kolkata")
+//    @Scheduled(cron = "0 * * * * *", zone = "Asia/Kolkata")
     public void sendDailyExpenseSummaryNotification() {
         log.info(">>>Sending daily expense summary notification");
         List<ProfileEntity> profiles = profileRepo.findAll();
