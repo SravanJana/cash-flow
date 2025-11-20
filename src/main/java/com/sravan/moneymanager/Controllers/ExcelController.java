@@ -46,10 +46,10 @@ public class ExcelController {
         headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=income-current-month.xlsx");
 
         return ResponseEntity.ok()
-                             .headers(headers)
-                             .contentLength(bytes.length)
-                             .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
-                             .body(bytes);
+                .headers(headers)
+                .contentLength(bytes.length)
+                .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                .body(bytes);
     }
 
     @GetMapping("/email/incomes")
@@ -65,21 +65,57 @@ public class ExcelController {
         String monthTitle = LocalDate.now().format(monthFmt);
 
         BigDecimal total = incomes.stream()
-                                  .map(inc -> inc.getAmount() == null ? BigDecimal.ZERO : inc.getAmount())
-                                  .reduce(BigDecimal.ZERO, BigDecimal::add);
+                .map(inc -> inc.getAmount() == null ? BigDecimal.ZERO : inc.getAmount())
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         StringBuilder html = new StringBuilder();
-        html.append("<html><body style=\"font-family:Arial,Helvetica,sans-serif;color:#333;\">")
-            .append("<h2 style=\"color:#2E7D32;\">Your Incomes for ").append(monthTitle).append("</h2>")
-            .append("<p>Hello <strong>").append(currentProfile.getFullName() != null ? currentProfile.getFullName() : "there").append("</strong>,</p>")
-            .append("<p>Attached is a friendly summary of your incomes for <strong>").append(monthTitle).append("</strong>. Below is a quick snapshot:</p>")
-            .append("<ul>")
-            .append("<li><strong>Total incomes:</strong> ").append(total.toString()).append("</li>")
-            .append("<li><strong>Entries:</strong> ").append(incomes.size()).append("</li>")
-            .append("</ul>")
-            .append("<p style=\"margin-top:16px;\">If you have any questions, reply to this email and we'll help.</p>")
-            .append("<p style=\"color:#777;font-size:12px;\">— MoneyManager</p>")
-            .append("</body></html>");
+        html.append("<!DOCTYPE html>")
+                .append("<html lang='en'>")
+                .append("<head>")
+                .append("<meta charset='UTF-8'>")
+                .append("<meta name='viewport' content='width=device-width, initial-scale=1.0'>")
+                .append("</head>")
+                .append("<body style='margin: 0; padding: 0; background-color: #0a0a0a; font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif;'>")
+                .append("<table width='100%' cellpadding='0' cellspacing='0' style='background-color: #0a0a0a; padding: 40px 20px;'>")
+                .append("<tr><td align='center'>")
+                .append("<table width='600' cellpadding='0' cellspacing='0' style='background-color: #1a1a1a; border-radius: 12px; border: 1px solid #2a2a2a; overflow: hidden;'>")
+                .append("<!-- Header -->")
+                .append("<tr><td style='background: linear-gradient(135deg, #10b981 0%, #8b5cf6 100%); padding: 40px 30px; text-align: center;'>")
+                .append("<h1 style='margin: 0; color: #ffffff; font-size: 28px; font-weight: 600;'>💰 Income Report</h1>")
+                .append("<p style='margin: 10px 0 0 0; color: #d1fae5; font-size: 14px;'>").append(monthTitle).append("</p>")
+                .append("</td></tr>")
+                .append("<!-- Content -->")
+                .append("<tr><td style='padding: 40px;'>")
+                .append("<h2 style='margin: 0 0 20px 0; color: #e0e0e0; font-size: 20px; font-weight: 500;'>Hi ").append(currentProfile.getFullName() != null ? currentProfile.getFullName() : "there").append("! 👋</h2>")
+                .append("<p style='margin: 0 0 25px 0; color: #b0b0b0; font-size: 15px; line-height: 1.6;'>Attached is your complete income summary for <strong style='color: #e0e0e0;'>").append(monthTitle).append("</strong>. Here's a quick overview:</p>")
+                .append("<!-- Summary Box -->")
+                .append("<div style='background-color: #242424; border-radius: 8px; padding: 20px; margin: 20px 0;'>")
+                .append("<table width='100%' cellpadding='0' cellspacing='0'>")
+                .append("<tr>")
+                .append("<td style='padding: 10px 0;'>")
+                .append("<p style='margin: 0; color: #888888; font-size: 13px;'>Total Income</p>")
+                .append("<p style='margin: 5px 0 0 0; color: #51cf66; font-size: 24px; font-weight: 700;'>₹").append(total.toString()).append("</p>")
+                .append("</td>")
+                .append("<td style='padding: 10px 0; text-align: right;'>")
+                .append("<p style='margin: 0; color: #888888; font-size: 13px;'>Total Entries</p>")
+                .append("<p style='margin: 5px 0 0 0; color: #e0e0e0; font-size: 24px; font-weight: 700;'>").append(incomes.size()).append("</p>")
+                .append("</td>")
+                .append("</tr>")
+                .append("</table>")
+                .append("</div>")
+                .append("<div style='background-color: #242424; border-left: 3px solid #51cf66; padding: 18px; margin: 25px 0; border-radius: 6px;'>")
+                .append("<p style='margin: 0; color: #c0c0c0; font-size: 14px; line-height: 1.6;'>📎 The complete Excel report is attached to this email for your records.</p>")
+                .append("</div>")
+                .append("<p style='margin: 25px 0 0 0; color: #888888; font-size: 14px; line-height: 1.6;'>If you have any questions, feel free to reply to this email.</p>")
+                .append("</td></tr>")
+                .append("<!-- Footer -->")
+                .append("<tr><td style='background-color: #242424; padding: 25px 40px; text-align: center; border-top: 1px solid #3a3a3a;'>")
+                .append("<p style='margin: 0; color: #888888; font-size: 13px;'>Best regards,<br/><strong style='color: #a0a0a0;'>The Money Manager Team</strong></p>")
+                .append("</td></tr>")
+                .append("</table>")
+                .append("</td></tr></table>")
+                .append("</body>")
+                .append("</html>");
 
         String subject = "Your Incomes Report — " + monthTitle;
 
@@ -97,10 +133,10 @@ public class ExcelController {
         headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=expense-current-month.xlsx");
 
         return ResponseEntity.ok()
-                             .headers(headers)
-                             .contentLength(bytes.length)
-                             .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
-                             .body(bytes);
+                .headers(headers)
+                .contentLength(bytes.length)
+                .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                .body(bytes);
     }
 
     @GetMapping("/email/expenses")
@@ -116,21 +152,57 @@ public class ExcelController {
         String monthTitle = LocalDate.now().format(monthFmt);
 
         BigDecimal total = expenses.stream()
-                                  .map(exp -> exp.getAmount() == null ? BigDecimal.ZERO : exp.getAmount())
-                                  .reduce(BigDecimal.ZERO, BigDecimal::add);
+                .map(exp -> exp.getAmount() == null ? BigDecimal.ZERO : exp.getAmount())
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         StringBuilder html = new StringBuilder();
-        html.append("<html><body style=\"font-family:Arial,Helvetica,sans-serif;color:#333;\">")
-            .append("<h2 style=\"color:#C62828;\">Your Expenses for ").append(monthTitle).append("</h2>")
-            .append("<p>Hello <strong>").append(currentProfile.getFullName() != null ? currentProfile.getFullName() : "there").append("</strong>,</p>")
-            .append("<p>Attached is a friendly summary of your expenses for <strong>").append(monthTitle).append("</strong>. Below is a quick snapshot:</p>")
-            .append("<ul>")
-            .append("<li><strong>Total expenses:</strong> ").append(total.toString()).append("</li>")
-            .append("<li><strong>Entries:</strong> ").append(expenses.size()).append("</li>")
-            .append("</ul>")
-            .append("<p style=\"margin-top:16px;\">If you have any questions, reply to this email and we'll help.</p>")
-            .append("<p style=\"color:#777;font-size:12px;\">— MoneyManager</p>")
-            .append("</body></html>");
+        html.append("<!DOCTYPE html>")
+                .append("<html lang='en'>")
+                .append("<head>")
+                .append("<meta charset='UTF-8'>")
+                .append("<meta name='viewport' content='width=device-width, initial-scale=1.0'>")
+                .append("</head>")
+                .append("<body style='margin: 0; padding: 0; background-color: #0a0a0a; font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, \"Helvetica Neue\", Arial, sans-serif;'>")
+                .append("<table width='100%' cellpadding='0' cellspacing='0' style='background-color: #0a0a0a; padding: 40px 20px;'>")
+                .append("<tr><td align='center'>")
+                .append("<table width='600' cellpadding='0' cellspacing='0' style='background-color: #1a1a1a; border-radius: 12px; border: 1px solid #2a2a2a; overflow: hidden;'>")
+                .append("<!-- Header -->")
+                .append("<tr><td style='background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%); padding: 40px 30px; text-align: center;'>")
+                .append("<h1 style='margin: 0; color: #ffffff; font-size: 28px; font-weight: 600;'>📊 Expense Report</h1>")
+                .append("<p style='margin: 10px 0 0 0; color: #fce7f3; font-size: 14px;'>").append(monthTitle).append("</p>")
+                .append("</td></tr>")
+                .append("<!-- Content -->")
+                .append("<tr><td style='padding: 40px;'>")
+                .append("<h2 style='margin: 0 0 20px 0; color: #e0e0e0; font-size: 20px; font-weight: 500;'>Hi ").append(currentProfile.getFullName() != null ? currentProfile.getFullName() : "there").append("! 👋</h2>")
+                .append("<p style='margin: 0 0 25px 0; color: #b0b0b0; font-size: 15px; line-height: 1.6;'>Attached is your complete expense summary for <strong style='color: #e0e0e0;'>").append(monthTitle).append("</strong>. Here's a quick overview:</p>")
+                .append("<!-- Summary Box -->")
+                .append("<div style='background-color: #242424; border-radius: 8px; padding: 20px; margin: 20px 0;'>")
+                .append("<table width='100%' cellpadding='0' cellspacing='0'>")
+                .append("<tr>")
+                .append("<td style='padding: 10px 0;'>")
+                .append("<p style='margin: 0; color: #888888; font-size: 13px;'>Total Expenses</p>")
+                .append("<p style='margin: 5px 0 0 0; color: #ff6b6b; font-size: 24px; font-weight: 700;'>₹").append(total.toString()).append("</p>")
+                .append("</td>")
+                .append("<td style='padding: 10px 0; text-align: right;'>")
+                .append("<p style='margin: 0; color: #888888; font-size: 13px;'>Total Entries</p>")
+                .append("<p style='margin: 5px 0 0 0; color: #e0e0e0; font-size: 24px; font-weight: 700;'>").append(expenses.size()).append("</p>")
+                .append("</td>")
+                .append("</tr>")
+                .append("</table>")
+                .append("</div>")
+                .append("<div style='background-color: #242424; border-left: 3px solid #ff6b6b; padding: 18px; margin: 25px 0; border-radius: 6px;'>")
+                .append("<p style='margin: 0; color: #c0c0c0; font-size: 14px; line-height: 1.6;'>📎 The complete Excel report is attached to this email for your records.</p>")
+                .append("</div>")
+                .append("<p style='margin: 25px 0 0 0; color: #888888; font-size: 14px; line-height: 1.6;'>If you have any questions, feel free to reply to this email.</p>")
+                .append("</td></tr>")
+                .append("<!-- Footer -->")
+                .append("<tr><td style='background-color: #242424; padding: 25px 40px; text-align: center; border-top: 1px solid #3a3a3a;'>")
+                .append("<p style='margin: 0; color: #888888; font-size: 13px;'>Best regards,<br/><strong style='color: #a0a0a0;'>The Money Manager Team</strong></p>")
+                .append("</td></tr>")
+                .append("</table>")
+                .append("</td></tr></table>")
+                .append("</body>")
+                .append("</html>");
 
         String subject = "Your Expenses Report — " + monthTitle;
 
@@ -140,8 +212,7 @@ public class ExcelController {
     }
 
     private byte[] buildExpenseWorkbookBytes(List<ExpenseDTO> expenses) throws IOException {
-        try (XSSFWorkbook workbook = new XSSFWorkbook();
-             ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+        try (XSSFWorkbook workbook = new XSSFWorkbook(); ByteArrayOutputStream out = new ByteArrayOutputStream()) {
 
             XSSFSheet sheet = workbook.createSheet("Current Month Expenses");
 
@@ -176,8 +247,7 @@ public class ExcelController {
     }
 
     private byte[] buildIncomeWorkbookBytes(List<IncomeDTO> incomes) throws IOException {
-        try (XSSFWorkbook workbook = new XSSFWorkbook();
-             ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+        try (XSSFWorkbook workbook = new XSSFWorkbook(); ByteArrayOutputStream out = new ByteArrayOutputStream()) {
 
             XSSFSheet sheet = workbook.createSheet("Current Month Incomes");
 
