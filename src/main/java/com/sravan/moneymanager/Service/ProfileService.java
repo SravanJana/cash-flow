@@ -22,9 +22,9 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class ProfileService {
-    private static final String EMAIL_REGEX =
-            "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$";
 
+    private static final String EMAIL_REGEX
+            = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$";
 
     private final ProfileRepo profileRepository;
     private final PasswordEncoder passwordEncoder;
@@ -34,15 +34,15 @@ public class ProfileService {
     @Value("${moneyManger.backend.url}")
     private String backendUrl;
 
-
     public ProfileDTO registerProfile(ProfileDTO profileDTO) {
         if (!profileDTO.getEmail().matches(EMAIL_REGEX)) {
             throw new IllegalArgumentException("Invalid email format");
         }
         ProfileEntity newProfile = toEntity(profileDTO);
         newProfile.setActivationToken(UUID.randomUUID()
-                                          .toString());
-        
+                .toString());
+        newProfile.setAuthProvider(com.sravan.moneymanager.Entity.AuthProvider.LOCAL);
+
         ProfileEntity saveProfile = profileRepository.save(newProfile);
 
         ProfileDTO dto = toDTO(saveProfile);
@@ -62,11 +62,11 @@ public class ProfileService {
         Optional<ProfileEntity> profileEntity = profileRepository.findByActivationToken(activationToken);
 
         Boolean activationResult = profileEntity.map(profile -> {
-                                                    profile.setIsActive(true);
-                                                    profileRepository.save(profile);
-                                                    return true;
-                                                })
-                                                .orElse(false);
+            profile.setIsActive(true);
+            profileRepository.save(profile);
+            return true;
+        })
+                .orElse(false);
 
         return activationResult;
 
@@ -75,16 +75,16 @@ public class ProfileService {
     public boolean isAccountActive(String email) {
         Optional<ProfileEntity> profileEntity = profileRepository.findByEmail(email);
         return profileEntity.map(ProfileEntity::getIsActive)
-                            .orElse(false);
+                .orElse(false);
     }
 
     public ProfileEntity getCurrentProfile() {
 
         Authentication authentication = SecurityContextHolder.getContext()
-                                                             .getAuthentication();
+                .getAuthentication();
         String email = authentication.getName();
         return profileRepository.findByEmail(email)
-                                .orElseThrow(() -> new RuntimeException("Profile not found with email: " + email));
+                .orElseThrow(() -> new RuntimeException("Profile not found with email: " + email));
     }
 
     public ProfileDTO getPublicProfile(String email) {
@@ -93,8 +93,8 @@ public class ProfileService {
             profileEntity = getCurrentProfile();
         } else {
             profileEntity = profileRepository.findByEmail(email)
-                                             .orElseThrow(() -> new RuntimeException(
-                                                     "Profile not found with email: " + email));
+                    .orElseThrow(() -> new RuntimeException(
+                    "Profile not found with email: " + email));
         }
         ProfileDTO dto = toDTO(profileEntity);
 
@@ -109,42 +109,39 @@ public class ProfileService {
 
             if (authentication.isAuthenticated()) {
                 return Map.of("token", jwtUtil.generateToken((UserDetails) authentication.getPrincipal()),
-                              "User", getPublicProfile(authDTO.getEmail()));
+                        "User", getPublicProfile(authDTO.getEmail()));
             } else {
                 throw new RuntimeException("Invalid Email or Password");
             }
         } catch (Exception e) {
             throw new RuntimeException("Invalid Email or Password");
 
-
         }
-
 
     }
 
     public ProfileEntity toEntity(ProfileDTO profileDTO) {
         return ProfileEntity.builder()
-                            .id(profileDTO.getId())
-                            .fullName(profileDTO.getFullName())
-                            .email(profileDTO.getEmail())
-                            .password(passwordEncoder.encode(profileDTO.getPassword()))
-                            .profileImageUrl(profileDTO.getProfileImageUrl())
-                            .createdAt(profileDTO.getCreatedAt())
-                            .updatedAt(profileDTO.getUpdatedAt())
-                            .build();
+                .id(profileDTO.getId())
+                .fullName(profileDTO.getFullName())
+                .email(profileDTO.getEmail())
+                .password(passwordEncoder.encode(profileDTO.getPassword()))
+                .profileImageUrl(profileDTO.getProfileImageUrl())
+                .createdAt(profileDTO.getCreatedAt())
+                .updatedAt(profileDTO.getUpdatedAt())
+                .build();
     }
 
     public ProfileDTO toDTO(ProfileEntity profileEntity) {
         return ProfileDTO.builder()
-                         .id(profileEntity.getId())
-                         .fullName(profileEntity.getFullName())
-                         .email(profileEntity.getEmail())
-                         .profileImageUrl(profileEntity.getProfileImageUrl())
-                         .password("Not Disclosed")
-                         .createdAt(profileEntity.getCreatedAt())
-                         .updatedAt(profileEntity.getUpdatedAt())
-                         .build();
+                .id(profileEntity.getId())
+                .fullName(profileEntity.getFullName())
+                .email(profileEntity.getEmail())
+                .profileImageUrl(profileEntity.getProfileImageUrl())
+                .password("Not Disclosed")
+                .createdAt(profileEntity.getCreatedAt())
+                .updatedAt(profileEntity.getUpdatedAt())
+                .build();
     }
-
 
 }

@@ -1,6 +1,5 @@
 package com.sravan.moneymanager.Config;
 
-
 import com.sravan.moneymanager.Filters.JwtAuthFilter;
 import com.sravan.moneymanager.UserDetailsService.ProfileUserDetailsService;
 import lombok.RequiredArgsConstructor;
@@ -28,19 +27,20 @@ import java.util.List;
 public class SecurityConfig {
 
     public final JwtAuthFilter jwtFilter;
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
 
         httpSecurity.authorizeHttpRequests(auth -> {
-            auth.requestMatchers("/status", "/actuator/health", "/register", "/login", "/activate")
-                .permitAll();
+            auth.requestMatchers("/status", "/actuator/health", "/register", "/login", "/activate", "/auth/**")
+                    .permitAll();
             auth.anyRequest()
-                .authenticated();
+                    .authenticated();
 
         });
         httpSecurity.csrf(AbstractHttpConfigurer::disable)
-                    .cors(Customizer.withDefaults())
-                    .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+                .cors(Customizer.withDefaults())
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         httpSecurity.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
         return httpSecurity.build();
     }

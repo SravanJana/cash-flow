@@ -26,6 +26,10 @@ public class ProfileEntity {
     private String email;
     private String password;
     private String profileImageUrl;
+    @Column(unique = true)
+    private String googleId;
+    @Enumerated(EnumType.STRING)
+    private AuthProvider authProvider;
     @Column(updatable = false)
     @CreationTimestamp
     private LocalDateTime createdAt;
@@ -41,6 +45,5 @@ public class ProfileEntity {
 
         }
     }
-
 
 }
